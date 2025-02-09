@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
 	bool add = 0;
 	bool update = 0;
 	bool delete = 0;
-	bool debug = 0;
+	bool debug = 1;
 
 	int op;
 	while ((op = getopt(argc, argv, "f:na:u:d:g")) != -1) {
@@ -50,16 +50,10 @@ int main(int argc, char *argv[]) {
 				printf("Unknown option -%c\n", op);
 				break;
 			default: 
-				return STATUS_ERROR;
+				return -1;
 		}
 	}
 	
-	if (fpath == NULL) {
-		printf("File path is a required argument\n");
-		print_usage(argv);
-		return STATUS_ERROR;
-	}
-
 	if (debug) {
 		printf("debug info:\n");
 		printf("\t fpath = %s\n", fpath);
@@ -69,13 +63,27 @@ int main(int argc, char *argv[]) {
 		printf("\t delete = %d\n", delete);
 	}
 
+	if (fpath == NULL) {
+		printf("File path is a required argument\n");
+		print_usage(argv);
+		return 0;
+	}
+
 	int fd = -1;
-	if (newfile) 
-		fd = create_db_file(fpath);
-	else 
+	if (newfile) {
+		fd = create_db_file(fpath); 
+		if (fd == STATUS_ERROR) {
+			printf("Unable to create db file\n");
+			return -1;
+		}
+	}else  {
 		fd = open_db_file(fpath);
-	if (fd == -1) return STATUS_ERROR;
+		if (fd == STATUS_ERROR) {
+			printf("Unable to open db file\n");
+			return -1;
+		}
+	}
 
 	close(fd);
-	return STATUS_SUCCESS;
+	return 0;
 }

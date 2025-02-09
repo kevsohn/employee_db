@@ -14,7 +14,7 @@ default: $(TARGET)
 clean:
 	rm -f obj/*
 	rm -f bin/*
-	rm -f ./$(DB_NAME).db
+	rm -f ./*.db
 
 $(TARGET): $(OBJ)
 	$(CC) $? -o $@

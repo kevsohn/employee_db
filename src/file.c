@@ -8,17 +8,25 @@
 #include "common.h"
 
 int create_db_file(char *fpath) {
-	int fd = open(fpath, O_CREAT, 0644);
+	int fd = open(fpath, O_RDONLY);
+	if (fd != -1) {
+		close(fd);
+		printf("File already exists\n");
+		return STATUS_ERROR;
+	}
+	fd = open(fpath, O_RDWR | O_CREAT, 0644);
 	if (fd == -1) {
-		perror("Error in creating db file\n");
+		perror("open");
+		return STATUS_ERROR;
 	}
 	return fd;
 }
 
 int open_db_file(char *fpath) {
-	int fd = open(fpath, O_RDONLY);
+	int fd = open(fpath, O_RDWR);
 	if (fd == -1) {
-		perror("Error in opening db file\n");
+		perror("open");
+		return STATUS_ERROR;
 	}
 	return fd;
 }

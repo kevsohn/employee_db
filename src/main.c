@@ -8,18 +8,15 @@
 #include "parse.h"
 
 void print_usage(char *argv[]) {
-	printf("Usage: %s -f <db path> -n\n", argv[0]);
+	printf("Usage: %s -f <db_file> -n\n", argv[0]);
 	printf("\t -f: (required) path to database file\n");
 	printf("\t -n: create new database file\n");
+	printf("\t -a: add database entry\n");
+	printf("\t -u: update database entry\n");
+	printf("\t -d: delete database entry\n");
+	printf("\t -g: show debug info\n");
 }
 
-/* 
--a: add
--u: update
--d: delete
--f: filepath
--n: newfile
-*/
 int main(int argc, char *argv[]) {
 	char *fpath = NULL;
 	bool newfile = 0;
@@ -29,7 +26,7 @@ int main(int argc, char *argv[]) {
 	bool debug = 0;
 
 	int op;
-	while ((op = getopt(argc, argv, "nf:a:u:d:")) != -1) {
+	while ((op = getopt(argc, argv, "f:na:u:d:g")) != -1) {
 		switch(op) {
 			case 'f':
 				fpath = optarg;
@@ -46,7 +43,7 @@ int main(int argc, char *argv[]) {
 			case 'd':
 				delete = true;
 				break;
-			case 'g';
+			case 'g':
 				debug = true;
 				break;
 			case '?':

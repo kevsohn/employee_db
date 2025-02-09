@@ -3,7 +3,7 @@
 
 #include "common.h"
 
-int create_db_file(char *fname);
-int open_db_file(char *fname);
+int create_db_file(char *fpath);
+int open_db_file(char *fpath);
 
 #endif

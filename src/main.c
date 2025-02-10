@@ -69,6 +69,8 @@ int main(int argc, char *argv[]) {
 		return 0;
 	}
 
+    struct header_t *header;
+    struct employee_t *employees;
 	int fd = -1;
 	if (newfile) {
 		fd = create_db_file(fpath); 
@@ -76,14 +78,39 @@ int main(int argc, char *argv[]) {
 			printf("Unable to create db file\n");
 			return -1;
 		}
-	}else  {
+        if (create_db_header(&header) == STATUS_ERROR) {
+            printf("Failed to create db header\n");
+            close(fd);
+            return -1;
+        }
+        if (create_employee_list(header, &employees) == STATUS_ERROR) {
+            printf("Failed to create employee list\n");
+            close(fd);
+            free(header);
+            return -1;
+        }
+	}else {
 		fd = open_db_file(fpath);
 		if (fd == STATUS_ERROR) {
 			printf("Unable to open db file\n");
 			return -1;
 		}
+        if (validate_db_header(fd, &header) == STATUS_ERROR) {
+            printf("Failed to validate db header\n");
+            close(fd);
+            free(header);
+            return -1;
+        }
+        if (read_employee_list(fd, header, &employees) == STATUS_ERROR) {
+            printf("Unable to read employee list\n");
+            close(fd);
+            free(header);
+            free(employees);
+            return -1;
+        }
 	}
 
-	close(fd);
+    // handles closing files and freeing ptrs
+    output_db_file(fd, header, employees);
 	return 0;
 }

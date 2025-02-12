@@ -12,7 +12,6 @@
 int output_db_file(int fd, struct header_t *h, struct employee_t *elist) {
     // save val bc changing endianness causes count to be gibberish
     int realcount = h->count;
-    printf("%d\n", realcount);
 
     // host endian to network endian
     h->magic = htonl(h->magic);
@@ -128,7 +127,6 @@ int read_employee_list(int fd, struct header_t *h, struct employee_t **eout) {
 }
 
 int add_employee(char *data, struct header_t *h, struct employee_t *elist) {
-
     char *name = strtok(data, ",");
     char *addr = strtok(NULL, ",");
     char *hours = strtok(NULL, ",");
@@ -139,3 +137,13 @@ int add_employee(char *data, struct header_t *h, struct employee_t *elist) {
     h->filesize += sizeof(struct employee_t);
     return STATUS_SUCCESS;
 }
+
+void print_employee_list(struct header_t *h, struct employee_t *elist) {
+    for (int i=0; i<h->count; ++i) {
+        printf("Employee %d:\n", i);
+        printf("\tName = %s\n", elist[i].name);
+        printf("\tAddress = %s\n", elist[i].address);
+        printf("\tHours = %u\n", elist[i].hours);
+    }
+}
+

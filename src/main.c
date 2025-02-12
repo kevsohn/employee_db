@@ -12,12 +12,13 @@ void print_usage(char *argv[]) {
 	printf("Usage (2): %s -f <db_file> -a <name,address,hours>\n", argv[0]);
 	printf("Usage (3): %s -f <db_file> -u <name>\n", argv[0]);
 	printf("Usage (4): %s -f <db_file> -d <name>\n", argv[0]);
-	printf("\t -f: (required) path to database file\n");
-	printf("\t -n: create new database file\n");
-	printf("\t -a: add database entry\n");
-	printf("\t -u: update database entry\n");
-	printf("\t -d: delete database entry\n");
-	printf("\t -g: show debug info\n");
+	printf("\t-f: (required) path to database file\n");
+	printf("\t-n: create new database file\n");
+	printf("\t-a: add entry\n");
+	printf("\t-u: update entry\n");
+	printf("\t-d: delete entry\n");
+	printf("\t-l: list all entries\n");
+	printf("\t-g: show debug info\n");
 }
 
 int main(int argc, char *argv[]) {
@@ -26,13 +27,14 @@ int main(int argc, char *argv[]) {
 	bool add = 0;
 	bool update = 0;
 	bool delete = 0;
-	bool debug = 1;
+    bool list = 0;
+	bool debug = 0;
     char *data_to_add = NULL;
     char *name_to_update = NULL;
     char *name_to_delete = NULL;
 
 	int op;
-	while ((op = getopt(argc, argv, "f:na:u:d:g")) != -1) {
+	while ((op = getopt(argc, argv, "f:na:u:d:lg")) != -1) {
 		switch(op) {
 			case 'f':
 				fpath = optarg;
@@ -52,6 +54,9 @@ int main(int argc, char *argv[]) {
 				delete = true;
                 name_to_delete = optarg;
 				break;
+            case 'l':
+                list = true;
+                break;
 			case 'g':
 				debug = true;
 				break;
@@ -124,6 +129,10 @@ int main(int argc, char *argv[]) {
             return -1;
         }
         add_employee(data_to_add, header, employees);
+    }
+
+    if (list) {
+        print_employee_list(header, employees);
     }
 
     // handles closing files and freeing ptrs

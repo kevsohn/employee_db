@@ -7,8 +7,9 @@ OBJ = $(SRC:src/%.c=obj/%.o)
 
 run: clean default
 	./$(TARGET) -f ./$(DB_NAME).db -n 
+	./$(TARGET) -f ./$(DB_NAME).db -a "Tim Horton, Terry Fox Ave., 1234"
+	./$(TARGET) -f ./$(DB_NAME).db -a "Tim Horton, Terry Fox Ave., 1"
 	./$(TARGET) -f ./$(DB_NAME).db
-	#./$(TARGET) -f ./$(DB_NAME).db -a "Tim Horton, Terry Fox Ave., 123"
 
 default: $(TARGET)
 

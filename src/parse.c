@@ -126,15 +126,74 @@ int read_employee_list(int fd, struct header_t *h, struct employee_t **eout) {
     return STATUS_SUCCESS; 
 }
 
-int add_employee(char *data, struct header_t *h, struct employee_t *elist) {
+int add_employee(char *data, struct header_t *h, struct employee_t **eout) {
     char *name = strtok(data, ",");
     char *addr = strtok(NULL, ",");
     char *hours = strtok(NULL, ",");
+    
+    // check if employee name exists
+    struct employee_t *elist = *eout;
+    for (int i=0; i<h->count; ++i) {
+        if (!strcmp(elist[i].name, name)) {
+            printf("Employee already exists in db\n");
+            free(h);
+            free(elist);
+            return STATUS_ERROR;
+        }
+    }
+
+    ++h->count;
+    elist = realloc(*eout, h->count*sizeof(struct employee_t));
+    if (elist == NULL) {
+        perror("realloc");
+        free(h);
+        free(*eout);
+        return STATUS_ERROR;
+    }
+    
     strncpy(elist[h->count-1].name, name, sizeof(elist[h->count-1].name));
     strncpy(elist[h->count-1].address, addr, sizeof(elist[h->count-1].address));
     elist[h->count-1].hours = atoi(hours);
 
     h->filesize += sizeof(struct employee_t);
+    *eout = elist;
+    elist = NULL;
+    return STATUS_SUCCESS;
+}
+
+int update_employee(char *data, struct header_t *h, struct employee_t *elist) {
+    char *name = strtok(data, ",");
+    char *hours = strtok(NULL, ",");
+    for (int i=0; i<h->count; ++i) {
+        if (!strcmp(elist[i].name, name)) {
+            elist[i].hours = atoi(hours);   
+            return STATUS_SUCCESS;
+        }
+    }
+    printf("No such name exists in db\n");
+    return STATUS_ERROR;
+}
+
+int remove_employee(char *name, struct header_t *h, struct employee_t **eout) {
+/*    int prevcount = h->count;
+    --h->count;
+    struct employee_t *elist = calloc(h->count, sizeof(struct employee_t));
+    
+    int i=0;
+    for (; i<prevcount; ++i) {
+        if (!strcmp(elist[i].name, name)) break;
+        strncpy(elist[i].name, *eout[i].name, sizeof(elist[i].name));
+        strncpy(elist[i].address, *eout[i].address, sizeof(elist[i].address));
+        elist[i].hours = *eout[i].hours;
+    }
+    if (i == prevcount-1) {
+        printf("No such name in db\n");
+        ++h->count;
+        free(h);
+        free(elist);
+        return STATUS_ERROR;
+    }
+   */ h->filesize -= sizeof(struct employee_t);
     return STATUS_SUCCESS;
 }
 

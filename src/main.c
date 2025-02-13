@@ -10,13 +10,13 @@
 void print_usage(char *argv[]) {
 	printf("Usage (1): %s -f <db_file> -n\n", argv[0]);
 	printf("Usage (2): %s -f <db_file> -a <name,address,hours>\n", argv[0]);
-	printf("Usage (3): %s -f <db_file> -u <name>\n", argv[0]);
-	printf("Usage (4): %s -f <db_file> -d <name>\n", argv[0]);
+	printf("Usage (3): %s -f <db_file> -u <name,hours>\n", argv[0]);
+	printf("Usage (4): %s -f <db_file> -r <name>\n", argv[0]);
 	printf("\t-f: (required) path to database file\n");
 	printf("\t-n: create new database file\n");
 	printf("\t-a: add entry\n");
 	printf("\t-u: update entry\n");
-	printf("\t-d: delete entry\n");
+	printf("\t-r: remove entry\n");
 	printf("\t-l: list all entries\n");
 	printf("\t-g: show debug info\n");
 }
@@ -26,15 +26,15 @@ int main(int argc, char *argv[]) {
 	bool newfile = 0;
 	bool add = 0;
 	bool update = 0;
-	bool delete = 0;
+	bool remove = 0;
     bool list = 0;
 	bool debug = 0;
     char *data_to_add = NULL;
-    char *name_to_update = NULL;
-    char *name_to_delete = NULL;
+    char *data_to_update = NULL;
+    char *name_to_remove = NULL;
 
 	int op;
-	while ((op = getopt(argc, argv, "f:na:u:d:lg")) != -1) {
+	while ((op = getopt(argc, argv, "f:na:u:r:lg")) != -1) {
 		switch(op) {
 			case 'f':
 				fpath = optarg;
@@ -48,11 +48,11 @@ int main(int argc, char *argv[]) {
 				break;
 			case 'u':
 				update = true;
-                name_to_update = optarg;
+                data_to_update = optarg;
 				break;
 			case 'd':
-				delete = true;
-                name_to_delete = optarg;
+				remove = true;
+                name_to_remove = optarg;
 				break;
             case 'l':
                 list = true;
@@ -74,14 +74,14 @@ int main(int argc, char *argv[]) {
 		printf("\t newfile = %d\n", newfile);
 		printf("\t add = %d\n", add);
 		printf("\t update = %d\n", update);
-		printf("\t delete = %d\n", delete);
+		printf("\t remove = %d\n", remove);
         printf("\t employee data = %s\n", data_to_add);
 	}
 
 	if (fpath == NULL) {
 		printf("File path is a required argument\n");
 		print_usage(argv);
-		return 0;
+		return -1;
 	}
 
     struct header_t *header;
@@ -114,21 +114,31 @@ int main(int argc, char *argv[]) {
     if (read_employee_list(fd, header, &employees) == STATUS_ERROR) {
         printf("Failed to read employee list\n");
         close(fd);
-        return 0;
+        return -1;
     }
 
     if (add) {
-        ++header->count;
-        employees = realloc(employees, header->count*sizeof(struct employee_t));
-        if (employees == NULL) {
-            perror("realloc");
-            printf("Failed to add employee to db\n");
+        if (add_employee(data_to_add, header, &employees) == STATUS_ERROR) {
+            printf("Failed to add employee\n");
             close(fd);
-            free(header);
-            free(employees);
             return -1;
         }
-        add_employee(data_to_add, header, employees);
+    }
+
+    if (update) {
+        if (update_employee(data_to_update, header, employees) == STATUS_ERROR) {
+            printf("Failed to update entry\n");
+            close(fd);
+            return -1;
+        }
+    }
+    
+    if (remove) {
+        if (remove_employee(name_to_remove, header, &employees) == STATUS_ERROR) {
+            printf("Failed to remove entry\n");
+            close(fd);
+            return -1;
+        }
     }
 
     if (list) {

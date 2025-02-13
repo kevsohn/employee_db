@@ -11,9 +11,9 @@ run: clean default
 	./$(TARGET) -f ./$(DB_NAME).db -a "John Vancouver,Maple Street,12"
 	./$(TARGET) -f ./$(DB_NAME).db -l
 	#./$(TARGET) -f ./$(DB_NAME).db -a "John Vancouver,Maple Street,12"
-	./$(TARGET) -f ./$(DB_NAME).db -u "Tim Horton,1000"
-	./$(TARGET) -f ./$(DB_NAME).db -u "Tim,1000"
-	./$(TARGET) -f ./$(DB_NAME).db -l
+	./$(TARGET) -f ./$(DB_NAME).db -u "Tim Horton,1000" -l
+	#./$(TARGET) -f ./$(DB_NAME).db -u "Tim,1000"
+	./$(TARGET) -f ./$(DB_NAME).db -r "John Vancouver" -l
 
 default: $(TARGET)
 

@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
 				update = true;
                 data_to_update = optarg;
 				break;
-			case 'd':
+			case 'r':
 				remove = true;
                 name_to_remove = optarg;
 				break;

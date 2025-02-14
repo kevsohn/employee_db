@@ -9,9 +9,9 @@
 
 void print_usage(char *argv[]) {
 	printf("Usage (1): %s -f <db_file> -n\n", argv[0]);
-	printf("Usage (2): %s -f <db_file> -a <name,address,hours>\n", argv[0]);
+	printf("Usage (2): %s -f <db_file> -a <name,address,hours> -l\n", argv[0]);
 	printf("Usage (3): %s -f <db_file> -u <name,hours>\n", argv[0]);
-	printf("Usage (4): %s -f <db_file> -r <name>\n", argv[0]);
+	printf("Usage (4): %s -f <db_file> -r <name> -g\n", argv[0]);
 	printf("\t-f: (required) path to database file\n");
 	printf("\t-n: create new database file\n");
 	printf("\t-a: add entry\n");
@@ -24,9 +24,6 @@ void print_usage(char *argv[]) {
 int main(int argc, char *argv[]) {
 	char *fpath = NULL;
 	bool newfile = 0;
-	bool add = 0;
-	bool update = 0;
-	bool remove = 0;
     bool list = 0;
 	bool debug = 0;
     char *data_to_add = NULL;
@@ -43,15 +40,12 @@ int main(int argc, char *argv[]) {
 				newfile = true;
 				break;
 			case 'a':
-				add = true;
                 data_to_add = optarg;
 				break;
 			case 'u':
-				update = true;
                 data_to_update = optarg;
 				break;
 			case 'r':
-				remove = true;
                 name_to_remove = optarg;
 				break;
             case 'l':
@@ -70,12 +64,12 @@ int main(int argc, char *argv[]) {
 	
 	if (debug) {
 		printf("debug info:\n");
-		printf("\t fpath = %s\n", fpath);
-		printf("\t newfile = %d\n", newfile);
-		printf("\t add = %d\n", add);
-		printf("\t update = %d\n", update);
-		printf("\t remove = %d\n", remove);
-        printf("\t employee data = %s\n", data_to_add);
+		printf("\tfpath = %s\n", fpath);
+		printf("\tnewfile = %d\n", newfile);
+		printf("\tlist = %d\n", list);
+		printf("\tadd = %s\n", data_to_add);
+		printf("\tupdate = %s\n", data_to_update);
+		printf("\tremove = %s\n", name_to_remove);
 	}
 
 	if (fpath == NULL) {
@@ -117,7 +111,7 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    if (add) {
+    if (data_to_add != NULL) {
         if (add_employee(data_to_add, header, &employees) == STATUS_ERROR) {
             printf("Failed to add employee\n");
             close(fd);
@@ -125,7 +119,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    if (update) {
+    if (data_to_update != NULL) {
         if (update_employee(data_to_update, header, employees) == STATUS_ERROR) {
             printf("Failed to update entry\n");
             close(fd);
@@ -133,7 +127,7 @@ int main(int argc, char *argv[]) {
         }
     }
     
-    if (remove) {
+    if (name_to_remove != NULL) {
         if (remove_employee(name_to_remove, header, &employees) == STATUS_ERROR) {
             printf("Failed to remove entry\n");
             close(fd);

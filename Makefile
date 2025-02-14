@@ -15,6 +15,7 @@ run: clean default
 	#./$(TARGET) -f ./$(DB_NAME).db -u "Tim,1000"
 	./$(TARGET) -f ./$(DB_NAME).db -r "John Vancouver" -l
 	#./$(TARGET) -f ./$(DB_NAME).db -r "Tim Horton" -l
+	./$(TARGET) -f ./$(DB_NAME).db -a "John Canuck,Hockey Lane,101" -l
 
 default: $(TARGET)
 

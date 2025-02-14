@@ -1,9 +1,9 @@
 #ifndef PARSE_H
 #define PARSE_H
 
-#define HEADER_MAGIC 0x4c4c4144
-#define NAME_SIZE 256
-#define ADDR_SIZE 256
+#define HEADER_MAGIC 0x4c4c4442
+#define NAME_SIZE 64
+#define ADDR_SIZE 128
 
 struct header_t {
 	unsigned int magic;

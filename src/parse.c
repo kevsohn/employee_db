@@ -143,7 +143,7 @@ int add_employee(char *data, struct header_t *h, struct employee_t **eout) {
     char *hours = strtok(NULL, ",");
     
     struct employee_t *elist = *eout;
-    if (check_employee_exists(name, h, elist) == STATUS_SUCCESS) {
+    if (search_employee_name(name, h, elist) != -1) {
         printf("Employee already exists in db\n");
         free(h);
         free(elist);
@@ -172,30 +172,28 @@ int add_employee(char *data, struct header_t *h, struct employee_t **eout) {
 int update_employee(char *data, struct header_t *h, struct employee_t *elist) {
     char *name = strtok(data, ",");
     char *hours = strtok(NULL, ",");
-    for (int i=0; i<h->count; ++i) {
-        if (!strcmp(elist[i].name, name)) {
-            elist[i].hours = atoi(hours);   
-            return STATUS_SUCCESS;
-        }
+    
+    int i = -1;
+    if ((i = search_employee_name(name, h, elist)) == -1) {
+        printf("No such employee in db\n");
+        free(h);
+        free(elist);
+        return STATUS_ERROR;
     }
-    printf("No such employee in db\n");
-    return STATUS_ERROR;
+    elist[i].hours = atoi(hours);   
+    return STATUS_SUCCESS;
 }
 
 int remove_employee(char *name, struct header_t *h, struct employee_t **eout) {
     struct employee_t *elist = *eout;
-    if (check_employee_exists(name, h, elist) == STATUS_ERROR) {
+    int i = -1;
+    if ((i = search_employee_name(name, h, elist)) == -1) {
         printf("No such employee in db\n");
         free(h);
         free(elist);
         return STATUS_ERROR;
     }
 
-    int i=0;
-    for (; i<h->count; ++i) {
-        if (!strcmp(elist[i].name, name)) 
-            break;
-    }
     --h->count;
     for (; i<h->count; ++i) {
         strncpy(elist[i].name, elist[i+1].name, sizeof(elist[i].name));
@@ -210,17 +208,16 @@ int remove_employee(char *name, struct header_t *h, struct employee_t **eout) {
         free(elist);
         return STATUS_ERROR;
     }
-    
     h->filesize -= sizeof(struct employee_t);
     return STATUS_SUCCESS;
 }
 
-int check_employee_exists(char *name, struct header_t *h, struct employee_t *elist) {
+int search_employee_name(char *name, struct header_t *h, struct employee_t *elist) {
     for (int i=0; i<h->count; ++i) {
         if (!strcmp(elist[i].name, name))
-            return STATUS_SUCCESS;
+            return i;
     }
-    return STATUS_ERROR;
+    return -1;
 }
 
 void print_employee_list(struct header_t *h, struct employee_t *elist) {

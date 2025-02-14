@@ -25,7 +25,7 @@ int read_employee_list(int fd, struct header_t *h, struct employee_t **eout);
 int add_employee(char *data, struct header_t *h, struct employee_t **eout);
 int update_employee(char *data, struct header_t *h, struct employee_t *elist);
 int remove_employee(char *name, struct header_t *h, struct employee_t **eout);
-int search_employee_name(char *name, struct header_t *h, struct employee_t *elist);
+int search_by_name(char *name, struct header_t *h, struct employee_t *elist);
 void print_employee_list(struct header_t *h, struct employee_t *elist);
 
 #endif

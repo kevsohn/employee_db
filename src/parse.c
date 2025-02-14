@@ -143,7 +143,7 @@ int add_employee(char *data, struct header_t *h, struct employee_t **eout) {
     char *hours = strtok(NULL, ",");
     
     struct employee_t *elist = *eout;
-    if (search_employee_name(name, h, elist) != -1) {
+    if (search_by_name(name, h, elist) != -1) {
         printf("Employee already exists in db\n");
         free(h);
         free(elist);
@@ -174,7 +174,7 @@ int update_employee(char *data, struct header_t *h, struct employee_t *elist) {
     char *hours = strtok(NULL, ",");
     
     int i = -1;
-    if ((i = search_employee_name(name, h, elist)) == -1) {
+    if ((i = search_by_name(name, h, elist)) == -1) {
         printf("No such employee in db\n");
         free(h);
         free(elist);
@@ -187,7 +187,7 @@ int update_employee(char *data, struct header_t *h, struct employee_t *elist) {
 int remove_employee(char *name, struct header_t *h, struct employee_t **eout) {
     struct employee_t *elist = *eout;
     int i = -1;
-    if ((i = search_employee_name(name, h, elist)) == -1) {
+    if ((i = search_by_name(name, h, elist)) == -1) {
         printf("No such employee in db\n");
         free(h);
         free(elist);
@@ -212,7 +212,7 @@ int remove_employee(char *name, struct header_t *h, struct employee_t **eout) {
     return STATUS_SUCCESS;
 }
 
-int search_employee_name(char *name, struct header_t *h, struct employee_t *elist) {
+int search_by_name(char *name, struct header_t *h, struct employee_t *elist) {
     for (int i=0; i<h->count; ++i) {
         if (!strcmp(elist[i].name, name))
             return i;

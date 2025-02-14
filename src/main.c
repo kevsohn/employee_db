@@ -146,6 +146,6 @@ int main(int argc, char *argv[]) {
     }
 
     // handles closing files and freeing ptrs
-    output_db_file(fd, header, employees);
+    write_db_file(fd, header, employees);
 	return 0;
 }

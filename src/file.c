@@ -10,8 +10,8 @@
 int create_db_file(char *fpath) {
 	int fd = open(fpath, O_RDONLY);
 	if (fd != -1) {
-		close(fd);
 		printf("File already exists\n");
+		close(fd);
 		return STATUS_ERROR;
 	}
 	fd = open(fpath, O_RDWR | O_CREAT, 0644);

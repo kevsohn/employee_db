@@ -9,7 +9,17 @@
 #include "common.h"
 #include "parse.h"
 
-int output_db_file(int fd, struct header_t *h, struct employee_t *elist) {
+// could have a backup functionality
+int write_db_file(int fd, struct header_t *h, struct employee_t *elist) {
+    // make sure file is always the correct size
+    if (ftruncate(fd, h->filesize) == -1) {
+        perror("ftruncate");
+        close(fd);
+        free(h);
+        free(elist);
+        return STATUS_ERROR;
+    }
+
     // save val bc changing endianness causes count to be gibberish
     int realcount = h->count;
 
@@ -23,6 +33,7 @@ int output_db_file(int fd, struct header_t *h, struct employee_t *elist) {
     // otherwise, writes to current cursor pos
     lseek(fd, 0, SEEK_SET);
 
+    // write header + employee list
     write(fd, h, sizeof(struct header_t));
     for (int i=0; i<realcount; ++i) {
         elist[i].hours = htonl(elist[i].hours);
@@ -167,38 +178,40 @@ int update_employee(char *data, struct header_t *h, struct employee_t *elist) {
             return STATUS_SUCCESS;
         }
     }
-    printf("No such name exists in db\n");
+    printf("No such employee in db\n");
     return STATUS_ERROR;
 }
 
 int remove_employee(char *name, struct header_t *h, struct employee_t **eout) {
     struct employee_t *elist = *eout;
     if (check_employee_exists(name, h, elist) == STATUS_ERROR) {
-        printf("Employee doesn't exist in db\n");
+        printf("No such employee in db\n");
         free(h);
         free(elist);
         return STATUS_ERROR;
     }
 
-    struct employee_t *temp = calloc(h->count-1, sizeof(struct employee_t));
     int i=0;
     for (; i<h->count; ++i) {
-        if (!strcmp(elist[i].name, name)) break;
-        strncpy(temp[i].name, elist[i].name, sizeof(elist[i].name));
-        strncpy(temp[i].address, elist[i].address, sizeof(elist[i].address));
-        temp[i].hours = elist[i].hours;
+        if (!strcmp(elist[i].name, name)) 
+            break;
     }
-    for (++i; i<h->count; ++i) {
-        strncpy(temp[i-1].name, elist[i].name, sizeof(elist[i].name));
-        strncpy(temp[i-1].address, elist[i].address, sizeof(elist[i].address));
-        temp[i-1].hours = elist[i].hours;
-    }
-
     --h->count;
+    for (; i<h->count; ++i) {
+        strncpy(elist[i].name, elist[i+1].name, sizeof(elist[i].name));
+        strncpy(elist[i].address, elist[i+1].address, sizeof(elist[i].address));
+        elist[i].hours = elist[i+1].hours;
+    }
+    
+    *eout = realloc(elist, h->count*sizeof(struct employee_t));
+    if (*eout == NULL) {
+        perror("realloc");
+        free(h);
+        free(elist);
+        return STATUS_ERROR;
+    }
+    
     h->filesize -= sizeof(struct employee_t);
-    *eout = temp;
-    free(elist);
-    temp = NULL, elist = NULL;
     return STATUS_SUCCESS;
 }
 
